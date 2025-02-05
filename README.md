@@ -134,9 +134,10 @@ descrypted_message = cipher.decrypt(encrypted_message) # Output: "Scout"
 The word bat (“Murcielago” in Spanish) is used where each letter of the word is assigned a number.
 
 The rest of the letters remain the same  
+```asciiart
 M u r c i e l a g o  
 0 1 2 3 4 5 6 7 8 9
-
+````
 ```python
 from ScoutCipher import Murcielago
 
