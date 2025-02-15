@@ -1,7 +1,7 @@
 from ..base import Encryption
 
 
-class MURCIELAGOCipher(Encryption):
+class MurcielagoCipher(Encryption):
     """
     #### MURCIELAGO(bat) encryption\n
     Each character in the word bat is assigned a number from 0 to 9.\n
@@ -52,6 +52,6 @@ class MURCIELAGOCipher(Encryption):
 
 
 if __name__ == "__main__":
-    cipher = MURCIELAGOCipher()
+    cipher = MurcielagoCipher()
     print(cipher.encrypt("message to encrypt"))
     print(cipher.decrypt("05ss785 t9 5n32ypt"))

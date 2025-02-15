@@ -33,9 +33,9 @@ pip install ScoutCipher
 Common Morse code where each letter is separated by / and words by //.
 
 ```python
-from ScoutCipher import Morse
+from ScoutCipher import MorseCipher
 
-cipher = Morse()
+cipher = MorseCipher()
 encrypted_message = cipher.encrypt("Be ready") # Output: "-..././/.-././.-/-../-.--"
 descrypted_message = cipher.decrypt(encrypted_message) # Output: "Be ready"
 ```
@@ -47,9 +47,9 @@ Just read each word backwards:
 Example: “Be ready” using the code would be “eb ydaer”.
 
 ```python
-from ScoutCipher import Reverse
+from ScoutCipher import ReverseCipher
 
-cipher = Reverse()
+cipher = ReverseCipher()
 encrypted_message = cipher.encrypt("Scout") # Output: "tuocs"
 descrypted_message = cipher.decrypt(encrypted_message) # Output: "Scout"
 ```
@@ -71,9 +71,9 @@ Code Alphabet:   B A T M N C D E F G H I J K L Ñ O P Q R S U V W X Y Z
 ```
 
 ```python
-from ScoutCipher import Keyword
+from ScoutCipher import KeywordCipher
 
-cipher = Keyword("batman")
+cipher = KeywordCipher("batman")
 encrypted_message = cipher.encrypt("Scout")# Output: "RTÑUS"
 descrypted_message = cipher.decrypt(encrypted_message) # Output: "Scout"
 ```
@@ -95,9 +95,9 @@ Z Y X W V U T S R Q P O Ñ N M L K J I H G F E D C B A
 ```
 
 ```python
-from ScoutCipher import Backward
+from ScoutCipher import BackwardCipher
 
-cipher = Backward()
+cipher = BackwardCipher()
 encrypted_message = cipher.encrypt("Scout") # Output: "Hxlfg"
 descrypted_message = cipher.decrypt(encrypted_message) # Output: "Scout"
 ```
@@ -122,9 +122,9 @@ Example:
 S is 3 in the row and 2 in the column
 
 ```python
-from ScoutCipher import Grid
+from ScoutCipher import GridCipher
 
-cipher = Grid()
+cipher = GridCipher()
 encrypted_message = cipher.encrypt("Scout") # Output: "32 13 27 34 33"
 descrypted_message = cipher.decrypt(encrypted_message) # Output: "Scout"
 ```
@@ -139,9 +139,9 @@ M u r c i e l a g o
 0 1 2 3 4 5 6 7 8 9
 ````
 ```python
-from ScoutCipher import Murcielago
+from ScoutCipher import MurcielagoCipher
 
-cipher = Murcielago()
+cipher = MurcielagoCipher()
 encrypted_message = cipher.encrypt("Scout") # Ouput: "s391t"
 descrypted_message = cipher.decrypt(encrypted_message) # Output: "Scout"
 

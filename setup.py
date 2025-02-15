@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="ScoutCipher",
-    version="0.1.0",
+    version="0.2.0",
     description="ScoutCipher is a Python package for encrypting and decrypting messages using different encryption methods using scout codes.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
