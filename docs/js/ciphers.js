@@ -180,7 +180,7 @@ const Ciphers = {
     id: 'grid',
     name: 'Cuadrícula (Grid)',
     needsKeyword: false,
-    description: 'Cada letra se codifica según su posición en una cuadrícula 3×9. El primer dígito es la fila y el segundo la columna.',
+    description: 'Cada letra se codifica según su posición en una cuadrícula 3×3. El primer dígito es la fila y el segundo la columna.',
     encrypt: function (text) {
       const grid = [
         ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
