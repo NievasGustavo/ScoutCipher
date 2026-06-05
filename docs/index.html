@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScoutCipher - Cifrados Scouts</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #E2D4B7;
+      --brown: #6C464F;
+      --green: #515B3A;
+      --orange: #DE6E4B;
+      --dark: #3A2A2E;
+      --light: #FAF8F2;
+      --radius: 12px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .header {
+      background: var(--green);
+      color: var(--cream);
+      padding: 16px 20px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .header h1 span { font-size: 1.8rem; }
+    .header p {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    .card {
+      background: var(--light);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px 20px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(108,70,79,0.1);
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--brown);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    select, input, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #d5c8b0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: #fff;
+      color: var(--dark);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(81,91,58,0.15);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .cipher-desc {
+      font-size: 0.88rem;
+      color: #5a4a4e;
+      margin-bottom: 12px;
+      line-height: 1.5;
+      padding: 10px 14px;
+      background: rgba(226,212,183,0.3);
+      border-radius: 8px;
+      border-left: 3px solid var(--orange);
+    }
+
+    .reference-container {
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+
+    .ref-table {
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      margin: 0 auto;
+    }
+    .ref-table td {
+      padding: 3px 5px;
+      text-align: center;
+      border: 1px solid #d5c8b0;
+      min-width: 22px;
+    }
+    .ref-char {
+      font-weight: 700;
+      color: var(--dark);
+      background: rgba(226,212,183,0.25);
+    }
+    .ref-code {
+      font-family: "Courier New", monospace;
+      color: var(--brown);
+      font-size: 0.75rem;
+    }
+    .ref-label {
+      font-weight: 600;
+      font-size: 0.7rem;
+      color: var(--green);
+      background: rgba(81,91,58,0.08);
+      border: none !important;
+      padding: 3px 6px !important;
+    }
+    .ref-hint {
+      font-size: 0.82rem;
+      color: #8a7a7e;
+      font-style: italic;
+    }
+    .ref-simple {
+      font-size: 0.85rem;
+      color: var(--brown);
+      background: rgba(226,212,183,0.2);
+      padding: 10px 14px;
+      border-radius: 8px;
+    }
+
+    .grid-ref td {
+      padding: 6px 8px;
+      min-width: 40px;
+    }
+    .grid-ref .ref-char { font-size: 0.95rem; }
+    .ref-code-sm {
+      display: block;
+      font-size: 0.6rem;
+      color: var(--brown);
+      font-family: "Courier New", monospace;
+      margin-top: 2px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--green);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #3f4a2e; }
+    .btn-secondary {
+      background: var(--brown);
+      color: #fff;
+    }
+    .btn-secondary:hover { background: #573a41; }
+    .btn-outline {
+      background: transparent;
+      color: var(--brown);
+      border: 2px solid var(--brown);
+    }
+    .btn-outline:hover { background: rgba(108,70,79,0.08); }
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      flex: none;
+      min-width: auto;
+    }
+
+    .result-container { display: none; }
+    .result-container textarea {
+      background: #f4efe6;
+      font-family: "Courier New", monospace;
+      font-size: 0.9rem;
+      min-height: 50px;
+      margin-bottom: 8px;
+    }
+    .result-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .error-msg {
+      display: none;
+      background: #fce8e8;
+      color: #b33;
+      border: 1px solid #ecc;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .history-header h2 {
+      font-size: 1rem;
+      color: var(--brown);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .history-list {
+      list-style: none;
+    }
+    .history-item {
+      padding: 8px 12px;
+      border-left: 3px solid var(--orange);
+      background: rgba(226,212,183,0.15);
+      margin-bottom: 6px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+    .history-meta {
+      display: block;
+      font-size: 0.72rem;
+      color: #8a7a7e;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .history-input, .history-output {
+      font-family: "Courier New", monospace;
+      word-break: break-all;
+    }
+    .history-arrow { color: var(--orange); margin: 0 4px; }
+    .history-empty {
+      font-size: 0.85rem;
+      color: #8a7a7e;
+      font-style: italic;
+      padding: 8px 12px;
+    }
+
+    .keyword-group { display: none; }
+
+    .footer {
+      text-align: center;
+      color: #8a7a7e;
+      font-size: 0.8rem;
+      padding: 12px;
+    }
+    .footer a { color: var(--brown); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 500px) {
+      .card { padding: 16px 14px; }
+      .header h1 { font-size: 1.3rem; }
+      .btn-group { flex-direction: column; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <h1><span>⚜</span> ScoutCipher</h1>
+    <p>Cifrados scouts para educadores</p>
+  </header>
+
+  <div class="container">
+
+    <div class="card">
+      <div class="form-group">
+        <label for="cipherSelect">Tipo de cifrado</label>
+        <select id="cipherSelect">
+          <option value="morse">Morse</option>
+          <option value="murcielago">Murciélago</option>
+          <option value="keyword">Keyword (Palabra Clave)</option>
+          <option value="backward">Alfabeto Invertido</option>
+          <option value="grid">Cuadrícula (Grid)</option>
+          <option value="reverse">Inverso (Reverse)</option>
+        </select>
+      </div>
+
+      <div id="cipherDescription" class="cipher-desc"></div>
+      <div id="referenceContainer" class="reference-container"></div>
+
+      <div class="form-group">
+        <label for="inputText">Mensaje</label>
+        <textarea id="inputText" placeholder="Escribí tu mensaje acá..."></textarea>
+      </div>
+
+      <div id="keywordGroup" class="form-group keyword-group">
+        <label for="keywordInput">Palabra clave</label>
+        <input type="text" id="keywordInput" placeholder="Ej: batman, scout, patria...">
+      </div>
+
+      <div class="btn-group">
+        <button id="encryptBtn" class="btn btn-primary">🔒 Cifrar</button>
+        <button id="decryptBtn" class="btn btn-secondary">🔓 Descifrar</button>
+      </div>
+
+      <div id="errorMsg" class="error-msg"></div>
+
+      <div id="resultContainer" class="result-container">
+        <label for="resultText" style="display:block;font-weight:600;font-size:0.85rem;color:var(--brown);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Resultado</label>
+        <textarea id="resultText" readonly></textarea>
+        <div class="result-actions">
+          <button id="copyBtn" class="btn btn-outline btn-sm">📋 Copiar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="history-header">
+        <h2>📜 Historial</h2>
+        <button id="clearHistoryBtn" class="btn btn-outline btn-sm">Limpiar</button>
+      </div>
+      <ul id="historyList" class="history-list">
+        <li class="history-empty">Todavía no hay conversiones.</li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <p><a href="https://github.com/NievasGustavo/ScoutCipher" target="_blank">ScoutCipher</a> · MIT License · Hecho con ⚜ por Gustavo Nievas</p>
+    </div>
+
+  </div>
+
+  <script src="js/ciphers.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
