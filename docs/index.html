@@ -106,18 +106,19 @@
     .reference-container {
       margin-bottom: 16px;
       overflow-x: auto;
+      padding: 0 0 12px 0;
     }
 
     .ref-table {
       border-collapse: collapse;
-      font-size: 0.78rem;
+      font-size: 0.88rem;
       margin: 0 auto;
     }
     .ref-table td {
-      padding: 3px 5px;
+      padding: 4px 7px;
       text-align: center;
       border: 1px solid #d5c8b0;
-      min-width: 22px;
+      min-width: 26px;
     }
     .ref-char {
       font-weight: 700;
@@ -127,7 +128,8 @@
     .ref-code {
       font-family: "Courier New", monospace;
       color: var(--brown);
-      font-size: 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 600;
     }
     .ref-label {
       font-weight: 600;
@@ -150,17 +152,47 @@
       border-radius: 8px;
     }
 
-    .grid-ref td {
-      padding: 6px 8px;
-      min-width: 40px;
+    .grid-pythagorean {
+      border-collapse: collapse;
+      margin: 0 auto;
     }
-    .grid-ref .ref-char { font-size: 0.95rem; }
+    .grid-pythagorean th {
+      font-weight: 700;
+      color: var(--brown);
+      background: rgba(226,212,183,0.3);
+      padding: 4px 8px;
+      border: 1px solid #E8DEC6;
+      text-align: center;
+      min-width: 30px;
+      font-size: 0.8rem;
+    }
+    .grid-pythagorean td {
+      border: 1px solid #E8DEC6;
+      padding: 6px 5px;
+      text-align: center;
+      min-width: 36px;
+    }
+    .grid-pythagorean .ref-char {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .grid-pythagorean td.sep-v {
+      border-right: 3px double var(--orange);
+    }
+    .grid-pythagorean th.sep-v {
+      border-right: 3px double var(--orange);
+    }
+    .grid-pythagorean td.sep-h {
+      border-bottom: 3px double var(--orange);
+    }
     .ref-code-sm {
       display: block;
-      font-size: 0.6rem;
+      font-size: 0.7rem;
       color: var(--brown);
       font-family: "Courier New", monospace;
       margin-top: 2px;
+      font-weight: 700;
     }
 
     .btn-group {

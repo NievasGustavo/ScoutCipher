@@ -218,21 +218,31 @@ const Ciphers = {
       return result.join('');
     },
     getReference: function () {
-      const grid = [
+      const data = [
         ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
         ['J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q'],
         ['R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
       ];
-      let html = '<table class="ref-table grid-ref">';
-      for (let r = 0; r < grid.length; r++) {
+      let html = '<table class="ref-table grid-pythagorean"><thead><tr><th></th>';
+      for (let c = 0; c < 9; c++) {
+        const cls = (c === 2 || c === 5) ? ' class="sep-v"' : '';
+        html += `<th${cls}>${c + 1}</th>`;
+      }
+      html += '</tr></thead><tbody>';
+      for (let r = 0; r < 3; r++) {
         html += '<tr>';
-        for (let c = 0; c < grid[r].length; c++) {
+        html += `<th>${r + 1}</th>`;
+        for (let c = 0; c < 9; c++) {
+          const classes = [];
+          if (c === 2 || c === 5) classes.push('sep-v');
+          if (r === 0 || r === 1) classes.push('sep-h');
+          const cls = classes.length ? ` class="${classes.join(' ')}"` : '';
           const code = `${r + 1}${c + 1}`;
-          html += `<td><span class="ref-char">${grid[r][c]}</span><span class="ref-code-sm">${code}</span></td>`;
+          html += `<td${cls}><span class="ref-char">${data[r][c]}</span><span class="ref-code-sm">${code}</span></td>`;
         }
         html += '</tr>';
       }
-      html += '</table>';
+      html += '</tbody></table>';
       return html;
     }
   },
