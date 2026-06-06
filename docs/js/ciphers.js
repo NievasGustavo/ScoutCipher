@@ -176,6 +176,31 @@ const Ciphers = {
     }
   },
 
+  cenitpolar: {
+    id: 'cenitpolar',
+    name: 'Cenit Polar',
+    needsKeyword: false,
+    description: 'Cada letra se intercambia según los pares C↔P, E↔O, N↔L, I↔A, T↔R. El resto se mantiene igual.',
+    encrypt: function (text) {
+      const map = { C:'P', E:'O', N:'L', I:'A', T:'R', P:'C', O:'E', L:'N', A:'I', R:'T' };
+      return text.toUpperCase().split('').map(ch => map[ch] || ch).join('');
+    },
+    decrypt: function (text) {
+      return this.encrypt(text);
+    },
+    getReference: function () {
+      return '<table class="ref-table"><thead><tr><th colspan="5">Cenit ↔ Polar</th></tr></thead><tbody>'
+        + '<tr><td>C</td><td>E</td><td>N</td><td>I</td><td>T</td></tr>'
+        + '<tr><td>P</td><td>O</td><td>L</td><td>A</td><td>R</td></tr>'
+        + '</tbody></table>'
+        + '<p class="ref-simple">Ejemplo: "lis" → "nas"</p>'
+        + '<details><summary>Alfabeto completo</summary>'
+        + '<table class="ref-table"><thead><tr><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th><th>I</th><th>J</th><th>K</th><th>L</th><th>M</th><th>N</th><th>Ñ</th><th>O</th><th>P</th><th>Q</th><th>R</th><th>S</th><th>T</th><th>U</th><th>V</th><th>W</th><th>X</th><th>Y</th><th>Z</th></tr></thead><tbody>'
+        + '<tr><td>I</td><td>B</td><td>P</td><td>D</td><td>O</td><td>F</td><td>G</td><td>H</td><td>A</td><td>J</td><td>K</td><td>N</td><td>M</td><td>L</td><td>Ñ</td><td>E</td><td>C</td><td>Q</td><td>T</td><td>S</td><td>R</td><td>U</td><td>V</td><td>W</td><td>X</td><td>Y</td><td>Z</td></tr>'
+        + '</tbody></table></details>';
+    }
+  },
+
   grid: {
     id: 'grid',
     name: 'Cuadrícula (Grid)',
