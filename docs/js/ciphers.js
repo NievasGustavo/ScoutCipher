@@ -1,3 +1,21 @@
+const MORSE_DICT = {
+  'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+  'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+  'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+  'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+  'Y': '-.--', 'Z': '--..',
+  '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-',
+  '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.'
+};
+const MORSE_REVERSE = {};
+for (const k in MORSE_DICT) MORSE_REVERSE[MORSE_DICT[k]] = k;
+
+const GRID_3x9 = [
+  ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
+  ['J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q'],
+  ['R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+];
+
 const Ciphers = {
   morse: {
     id: 'morse',
@@ -5,37 +23,19 @@ const Ciphers = {
     needsKeyword: false,
     description: 'Cada letra se reemplaza por su código Morse. Las letras se separan con / y las palabras con //.',
     encrypt: function (text) {
-      const dict = {
-        'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
-        'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
-        'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
-        'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
-        'Y': '-.--', 'Z': '--..',
-        '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-',
-        '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.'
-      };
       const words = text.toUpperCase().split(' ');
       const result = [];
       for (const word of words) {
         const chars = [];
         for (const ch of word) {
-          if (!dict[ch]) throw new Error(`Caracter no soportado: '${ch}'`);
-          chars.push(dict[ch]);
+          if (!MORSE_DICT[ch]) throw new Error(`Caracter no soportado: '${ch}'`);
+          chars.push(MORSE_DICT[ch]);
         }
         result.push(chars.join('/'));
       }
       return result.join('//');
     },
     decrypt: function (text) {
-      const dict = {
-        '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E', '..-.': 'F',
-        '--.': 'G', '....': 'H', '..': 'I', '.---': 'J', '-.-': 'K', '.-..': 'L',
-        '--': 'M', '-.': 'N', '---': 'O', '.--.': 'P', '--.-': 'Q', '.-.': 'R',
-        '...': 'S', '-': 'T', '..-': 'U', '...-': 'V', '.--': 'W', '-..-': 'X',
-        '-.--': 'Y', '--..': 'Z',
-        '-----': '0', '.----': '1', '..---': '2', '...--': '3', '....-': '4',
-        '.....': '5', '-....': '6', '--...': '7', '---..': '8', '----.': '9'
-      };
       if (!text.trim()) throw new Error('El mensaje no puede estar vacío');
       const words = text.split('//');
       const result = [];
@@ -43,20 +43,19 @@ const Ciphers = {
         const codes = word.split('/');
         const chars = [];
         for (const code of codes) {
-          if (!dict[code]) throw new Error(`Código Morse inválido: '${code}'`);
-          chars.push(dict[code]);
+          if (!MORSE_REVERSE[code]) throw new Error(`Código Morse inválido: '${code}'`);
+          chars.push(MORSE_REVERSE[code]);
         }
         result.push(chars.join(''));
       }
       return result.join(' ');
     },
     getReference: function () {
-      const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
-      const morse = {'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..'};
+      const letters = Object.keys(MORSE_DICT).filter(k => /^[A-Z]$/.test(k));
       let html = '<table class="ref-table"><tbody><tr>';
       for (const l of letters) html += `<td class="ref-char">${l}</td>`;
       html += '</tr><tr>';
-      for (const l of letters) html += `<td class="ref-code">${morse[l]}</td>`;
+      for (const l of letters) html += `<td class="ref-code">${MORSE_DICT[l]}</td>`;
       html += '</tr></tbody></table>';
       return html;
     }
@@ -147,12 +146,7 @@ const Ciphers = {
         'Ñ': 'M', 'O': 'L', 'P': 'K', 'Q': 'J', 'R': 'I', 'S': 'H', 'T': 'G',
         'U': 'F', 'V': 'E', 'W': 'D', 'X': 'C', 'Y': 'B', 'Z': 'A'
       };
-      return text.split('').map(ch => {
-        if (!/[a-zA-ZÀ-ÿÑñ]/.test(ch)) return ch;
-        const upper = ch.toUpperCase();
-        const result = map[upper] || upper;
-        return ch === ch.toLowerCase() ? result.toLowerCase() : result;
-      }).join('');
+      return text.toUpperCase().split('').map(ch => map[ch] || ch).join('');
     },
     decrypt: function (text) {
       return this.encrypt(text);
@@ -207,16 +201,11 @@ const Ciphers = {
     needsKeyword: false,
     description: 'Cada letra se codifica según su posición en una cuadrícula 3×3. El primer dígito es la fila y el segundo la columna.',
     encrypt: function (text) {
-      const grid = [
-        ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
-        ['J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q'],
-        ['R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-      ];
       const map = {};
-      for (let r = 0; r < grid.length; r++) {
-        for (let c = 0; c < grid[r].length; c++) {
-          map[grid[r][c]] = `${r + 1}${c + 1}`;
-          map[grid[r][c].toLowerCase()] = `${r + 1}${c + 1}`;
+      for (let r = 0; r < GRID_3x9.length; r++) {
+        for (let c = 0; c < GRID_3x9[r].length; c++) {
+          map[GRID_3x9[r][c]] = `${r + 1}${c + 1}`;
+          map[GRID_3x9[r][c].toLowerCase()] = `${r + 1}${c + 1}`;
         }
       }
       return text.split('').map(ch => {
@@ -225,11 +214,6 @@ const Ciphers = {
       }).join(' ');
     },
     decrypt: function (text) {
-      const grid = [
-        ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
-        ['J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q'],
-        ['R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-      ];
       if (!text.trim()) throw new Error('El mensaje no puede estar vacío');
       const codes = text.trim().split(/\s+/);
       const result = [];
@@ -238,16 +222,12 @@ const Ciphers = {
         const r = parseInt(code[0]) - 1;
         const c = parseInt(code[1]) - 1;
         if (r < 0 || r >= 3 || c < 0 || c >= 9) throw new Error(`Código fuera de rango: '${code}'`);
-        result.push(grid[r][c]);
+        result.push(GRID_3x9[r][c]);
       }
       return result.join('');
     },
     getReference: function () {
-      const data = [
-        ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
-        ['J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q'],
-        ['R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-      ];
+      const data = GRID_3x9;
       let html = '<table class="ref-table grid-pythagorean"><thead><tr><th></th>';
       for (let c = 0; c < 9; c++) {
         const cls = (c === 2 || c === 5) ? ' class="sep-v"' : '';
@@ -317,7 +297,7 @@ const Ciphers = {
       throw new Error('Usá la grilla de botones para escribir el mensaje manualmente.');
     },
     getReference: function () {
-      const data = [['A','B','C','D','E','F','G','H','I'],['J','K','L','M','N','Ñ','O','P','Q'],['R','S','T','U','V','W','X','Y','Z']];
+      const data = GRID_3x9;
       let html = '<table class="ref-table grid-pythagorean"><thead><tr><th></th>';
       for (let c = 0; c < 9; c++) {
         html += '<th' + ((c === 2 || c === 5) ? ' class="sep-v"' : '') + '>' + (c + 1) + '</th>';
@@ -354,34 +334,4 @@ const Ciphers = {
       return '<p class="ref-simple"><strong>Ejemplo:</strong> "Scout Cipher" → "tuocS rehpiC"</p>';
     }
   }
-};
-
-var SVG_DATA = {
-  A: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C0.66 0 1.32 0 2 0 C2 11.88 2 23.76 2 36 C-16.15 36 -34.3 36 -53 36 C-53 35.34 -53 34.68 -53 34 C-35.51 34 -18.02 34 0 34 C0 22.78 0 11.56 0 0 Z " fill="#000000" transform="translate(54,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(9,21.75)"/>\n</svg>',
-  B: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C0.66 0 1.32 0 2 0 C2 11.88 2 23.76 2 36 C-16.15 36 -34.3 36 -53 36 C-53 35.34 -53 34.68 -53 34 C-35.51 34 -18.02 34 0 34 C0 22.78 0 11.56 0 0 Z " fill="#000000" transform="translate(54,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(27,21.75)"/>\n</svg>',
-  C: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C0.66 0 1.32 0 2 0 C2 11.88 2 23.76 2 36 C-16.15 36 -34.3 36 -53 36 C-53 35.34 -53 34.68 -53 34 C-35.51 34 -18.02 34 0 34 C0 22.78 0 11.56 0 0 Z " fill="#000000" transform="translate(54,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(46,21.75)"/>\n</svg>',
-  D: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C0.66 0 1.32 0 2 0 C2 11.22 2 22.44 2 34 C18.83 34 35.66 34 53 34 C53 22.78 53 11.56 53 0 C53.66 0 54.32 0 55 0 C55 11.88 55 23.76 55 36 C36.85 36 18.7 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(9,21.75)"/>\n</svg>',
-  E: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C0.66 0 1.32 0 2 0 C2 11.22 2 22.44 2 34 C18.83 34 35.66 34 53 34 C53 22.78 53 11.56 53 0 C53.66 0 54.32 0 55 0 C55 11.88 55 23.76 55 36 C36.85 36 18.7 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(27,21.75)"/>\n</svg>',
-  F: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C0.66 0 1.32 0 2 0 C2 11.22 2 22.44 2 34 C18.83 34 35.66 34 53 34 C53 22.78 53 11.56 53 0 C53.66 0 54.32 0 55 0 C55 11.88 55 23.76 55 36 C36.85 36 18.7 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(46,21.75)"/>\n</svg>',
-  G: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C0.66 0 1.32 0 2 0 C2 11.22 2 22.44 2 34 C19.16 34 36.32 34 54 34 C54 34.66 54 35.32 54 36 C36.18 36 18.36 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(9,21.75)"/>\n</svg>',
-  H: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C0.66 0 1.32 0 2 0 C2 11.22 2 22.44 2 34 C19.16 34 36.32 34 54 34 C54 34.66 54 35.32 54 36 C36.18 36 18.36 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(27,21.75)"/>\n</svg>',
-  I: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C0.66 0 1.32 0 2 0 C2 11.22 2 22.44 2 34 C19.16 34 36.32 34 54 34 C54 34.66 54 35.32 54 36 C36.18 36 18.36 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(46,21.75)"/>\n</svg>',
-  J: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C18.15 0 36.3 0 55 0 C55 11.88 55 23.76 55 36 C36.85 36 18.7 36 0 36 C0 35.34 0 34.68 0 34 C17.49 34 34.98 34 53 34 C53 23.44 53 12.88 53 2 C35.51 2 18.02 2 0 2 C0 1.34 0 0.68 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(9,21.75)"/>\n</svg>',
-  K: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C18.15 0 36.3 0 55 0 C55 11.88 55 23.76 55 36 C36.85 36 18.7 36 0 36 C0 35.34 0 34.68 0 34 C17.49 34 34.98 34 53 34 C53 23.44 53 12.88 53 2 C35.51 2 18.02 2 0 2 C0 1.34 0 0.68 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(27,21.75)"/>\n</svg>',
-  L: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C18.15 0 36.3 0 55 0 C55 11.88 55 23.76 55 36 C36.85 36 18.7 36 0 36 C0 35.34 0 34.68 0 34 C17.49 34 34.98 34 53 34 C53 23.44 53 12.88 53 2 C35.51 2 18.02 2 0 2 C0 1.34 0 0.68 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(46,21.75)"/>\n</svg>',
-  M: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C18.15 0 36.3 0 55 0 C55 11.88 55 23.76 55 36 C36.85 36 18.7 36 0 36 C0 24.12 0 12.24 0 0 Z M2 2 C2 12.56 2 23.12 2 34 C18.83 34 35.66 34 53 34 C53 23.44 53 12.88 53 2 C36.17 2 19.34 2 2 2 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(9,21.75)"/>\n</svg>',
-  N: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C18.15 0 36.3 0 55 0 C55 11.88 55 23.76 55 36 C36.85 36 18.7 36 0 36 C0 24.12 0 12.24 0 0 Z M2 2 C2 12.56 2 23.12 2 34 C18.83 34 35.66 34 53 34 C53 23.44 53 12.88 53 2 C36.17 2 19.34 2 2 2 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(27,21.75)"/>\n</svg>',
-  Ñ: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C18.15 0 36.3 0 55 0 C55 11.88 55 23.76 55 36 C36.85 36 18.7 36 0 36 C0 24.12 0 12.24 0 0 Z M2 2 C2 12.56 2 23.12 2 34 C18.83 34 35.66 34 53 34 C53 23.44 53 12.88 53 2 C36.17 2 19.34 2 2 2 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(46,21.75)"/>\n</svg>',
-  O: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C17.82 0 35.64 0 54 0 C54 0.66 54 1.32 54 2 C36.84 2 19.68 2 2 2 C2 12.56 2 23.12 2 34 C19.16 34 36.32 34 54 34 C54 34.66 54 35.32 54 36 C36.18 36 18.36 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(9,21.75)"/>\n</svg>',
-  P: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C17.82 0 35.64 0 54 0 C54 0.66 54 1.32 54 2 C36.84 2 19.68 2 2 2 C2 12.56 2 23.12 2 34 C19.16 34 36.32 34 54 34 C54 34.66 54 35.32 54 36 C36.18 36 18.36 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(27,21.75)"/>\n</svg>',
-  Q: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C17.82 0 35.64 0 54 0 C54 0.66 54 1.32 54 2 C36.84 2 19.68 2 2 2 C2 12.56 2 23.12 2 34 C19.16 34 36.32 34 54 34 C54 34.66 54 35.32 54 36 C36.18 36 18.36 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(46,21.75)"/>\n</svg>',
-  R: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C18.15 0 36.3 0 55 0 C55 11.88 55 23.76 55 36 C54.34 36 53.68 36 53 36 C53 24.78 53 13.56 53 2 C35.51 2 18.02 2 0 2 C0 1.34 0 0.68 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(9,21.75)"/>\n</svg>',
-  S: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C18.15 0 36.3 0 55 0 C55 11.88 55 23.76 55 36 C54.34 36 53.68 36 53 36 C53 24.78 53 13.56 53 2 C35.51 2 18.02 2 0 2 C0 1.34 0 0.68 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(27,21.75)"/>\n</svg>',
-  T: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C18.15 0 36.3 0 55 0 C55 11.88 55 23.76 55 36 C54.34 36 53.68 36 53 36 C53 24.78 53 13.56 53 2 C35.51 2 18.02 2 0 2 C0 1.34 0 0.68 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(46,21.75)"/>\n</svg>',
-  U: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C18.15 0 36.3 0 55 0 C55 11.88 55 23.76 55 36 C54.34 36 53.68 36 53 36 C53 24.78 53 13.56 53 2 C36.17 2 19.34 2 2 2 C2 13.22 2 24.44 2 36 C1.34 36 0.68 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(9,21.75)"/>\n</svg>',
-  V: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C18.15 0 36.3 0 55 0 C55 11.88 55 23.76 55 36 C54.34 36 53.68 36 53 36 C53 24.78 53 13.56 53 2 C36.17 2 19.34 2 2 2 C2 13.22 2 24.44 2 36 C1.34 36 0.68 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(27,21.75)"/>\n</svg>',
-  W: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C18.15 0 36.3 0 55 0 C55 11.88 55 23.76 55 36 C54.34 36 53.68 36 53 36 C53 24.78 53 13.56 53 2 C36.17 2 19.34 2 2 2 C2 13.22 2 24.44 2 36 C1.34 36 0.68 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(46,21.75)"/>\n</svg>',
-  X: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C17.82 0 35.64 0 54 0 C54 0.66 54 1.32 54 2 C36.84 2 19.68 2 2 2 C2 13.22 2 24.44 2 36 C1.34 36 0.68 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(9,21.75)"/>\n</svg>',
-  Y: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C17.82 0 35.64 0 54 0 C54 0.66 54 1.32 54 2 C36.84 2 19.68 2 2 2 C2 13.22 2 24.44 2 36 C1.34 36 0.68 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(27,21.75)"/>\n</svg>',
-  Z: '<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generator: https://ezgif.com/png-to-svg -->\n<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="56" height="40">\n<path d="M0 0 C17.82 0 35.64 0 54 0 C54 0.66 54 1.32 54 2 C36.84 2 19.68 2 2 2 C2 13.22 2 24.44 2 36 C1.34 36 0.68 36 0 36 C0 24.12 0 12.24 0 0 Z " fill="#000000" transform="translate(1,2)"/>\n<path d="M0 0 C3 0.25 3 0.25 5 2.25 C5.25 5.25 5.25 5.25 5 8.25 C3 10.25 3 10.25 0 10.5 C-3 10.25 -3 10.25 -5 8.25 C-5.25 5.25 -5.25 5.25 -5 2.25 C-3 0.25 -3 0.25 0 0 Z " fill="#000000" transform="translate(46,21.75)"/>\n</svg>'
 };

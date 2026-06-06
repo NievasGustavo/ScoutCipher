@@ -495,47 +495,7 @@
       <div id="cajonSection" class="cajon-section" style="margin-top:16px">
         <label>Grilla interactiva</label>
         <div class="cajon-grid-wrap">
-          <div class="cajon-grid">
-            <div class="cg-row">
-              <button id="btnA" class="cajon-btn" title="A"><img src="img/rejilla/A.svg"><span class="cb-label">A</span></button>
-              <button id="btnB" class="cajon-btn" title="B"><img src="img/rejilla/B.svg"><span class="cb-label">B</span></button>
-              <button id="btnC" class="cajon-btn" title="C"><img src="img/rejilla/C.svg"><span class="cb-label">C</span></button>
-              <span class="cg-sep"></span>
-              <button id="btnD" class="cajon-btn" title="D"><img src="img/rejilla/D.svg"><span class="cb-label">D</span></button>
-              <button id="btnE" class="cajon-btn" title="E"><img src="img/rejilla/E.svg"><span class="cb-label">E</span></button>
-              <button id="btnF" class="cajon-btn" title="F"><img src="img/rejilla/F.svg"><span class="cb-label">F</span></button>
-              <span class="cg-sep"></span>
-              <button id="btnG" class="cajon-btn" title="G"><img src="img/rejilla/G.svg"><span class="cb-label">G</span></button>
-              <button id="btnH" class="cajon-btn" title="H"><img src="img/rejilla/H.svg"><span class="cb-label">H</span></button>
-              <button id="btnI" class="cajon-btn" title="I"><img src="img/rejilla/I.svg"><span class="cb-label">I</span></button>
-            </div>
-            <div class="cg-row">
-              <button id="btnJ" class="cajon-btn" title="J"><img src="img/rejilla/J.svg"><span class="cb-label">J</span></button>
-              <button id="btnK" class="cajon-btn" title="K"><img src="img/rejilla/K.svg"><span class="cb-label">K</span></button>
-              <button id="btnL" class="cajon-btn" title="L"><img src="img/rejilla/L.svg"><span class="cb-label">L</span></button>
-              <span class="cg-sep"></span>
-              <button id="btnM" class="cajon-btn" title="M"><img src="img/rejilla/M.svg"><span class="cb-label">M</span></button>
-              <button id="btnN" class="cajon-btn" title="N"><img src="img/rejilla/N.svg"><span class="cb-label">N</span></button>
-              <button id="btnÑ" class="cajon-btn" title="Ñ"><img src="img/rejilla/Ñ.svg"><span class="cb-label">Ñ</span></button>
-              <span class="cg-sep"></span>
-              <button id="btnO" class="cajon-btn" title="O"><img src="img/rejilla/O.svg"><span class="cb-label">O</span></button>
-              <button id="btnP" class="cajon-btn" title="P"><img src="img/rejilla/P.svg"><span class="cb-label">P</span></button>
-              <button id="btnQ" class="cajon-btn" title="Q"><img src="img/rejilla/Q.svg"><span class="cb-label">Q</span></button>
-            </div>
-            <div class="cg-row">
-              <button id="btnR" class="cajon-btn" title="R"><img src="img/rejilla/R.svg"><span class="cb-label">R</span></button>
-              <button id="btnS" class="cajon-btn" title="S"><img src="img/rejilla/S.svg"><span class="cb-label">S</span></button>
-              <button id="btnT" class="cajon-btn" title="T"><img src="img/rejilla/T.svg"><span class="cb-label">T</span></button>
-              <span class="cg-sep"></span>
-              <button id="btnU" class="cajon-btn" title="U"><img src="img/rejilla/U.svg"><span class="cb-label">U</span></button>
-              <button id="btnV" class="cajon-btn" title="V"><img src="img/rejilla/V.svg"><span class="cb-label">V</span></button>
-              <button id="btnW" class="cajon-btn" title="W"><img src="img/rejilla/W.svg"><span class="cb-label">W</span></button>
-              <span class="cg-sep"></span>
-              <button id="btnX" class="cajon-btn" title="X"><img src="img/rejilla/X.svg"><span class="cb-label">X</span></button>
-              <button id="btnY" class="cajon-btn" title="Y"><img src="img/rejilla/Y.svg"><span class="cb-label">Y</span></button>
-              <button id="btnZ" class="cajon-btn" title="Z"><img src="img/rejilla/Z.svg"><span class="cb-label">Z</span></button>
-            </div>
-          </div>
+          <div class="cajon-grid" id="cajonGrid"></div>
         </div>
         <div class="cajon-actions">
           <button id="cajonClear" class="btn btn-outline btn-sm">Limpiar</button>
@@ -564,6 +524,7 @@
 
   </div>
 
+  <script src="js/svg-data.js"></script>
   <script src="js/ciphers.js"></script>
   <script src="js/app.js"></script>
 </body>

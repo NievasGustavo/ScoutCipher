@@ -58,13 +58,14 @@
     const cipher = getSelectedCipher();
     const text = elements.inputText.value.trim();
 
+    if (!text) {
+      showError('Por favor ingresá un mensaje.');
+      return;
+    }
+
     if (cipher.id === 'cajon') {
       if (operation === 'decrypt') {
         showError('Usá la grilla de botones para escribir el mensaje manualmente.');
-        return;
-      }
-      if (!text) {
-        showError('Por favor ingresá un mensaje.');
         return;
       }
       elements.errorMsg.style.display = 'none';
@@ -76,11 +77,6 @@
       } catch (e) {
         showError(e.message || 'Error al procesar el mensaje.');
       }
-      return;
-    }
-
-    if (!text) {
-      showError('Por favor ingresá un mensaje.');
       return;
     }
 
@@ -177,6 +173,20 @@
     renderHistory();
   }
 
+  function drawFallback(ctx, x, y, letter) {
+    const CELL = 40;
+    ctx.fillStyle = '#f5f0e6';
+    ctx.fillRect(x, y, CELL, CELL);
+    ctx.strokeStyle = '#d5c8b0';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, CELL, CELL);
+    ctx.fillStyle = '#6C464F';
+    ctx.font = 'bold 18px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(letter, x + CELL / 2, y + CELL / 2);
+  }
+
   function generatePng() {
     const outputEl = elements.cajonOutput;
     if (!outputEl.innerHTML.trim()) {
@@ -184,33 +194,33 @@
       return;
     }
 
-    var children = outputEl.children;
-    var CELL = 40;
-    var GAP = 4;
-    var PAD = 24;
-    var COLS = 16;
-    var STEP = CELL + GAP;
+    const children = outputEl.children;
+    const CELL = 40;
+    const GAP = 4;
+    const PAD = 24;
+    const COLS = 16;
+    const STEP = CELL + GAP;
 
-    var total = children.length;
+    const total = children.length;
     if (!total) {
       showError('No hay imágenes para generar.');
       return;
     }
 
-    var cols = Math.min(total, COLS);
-    var rows = Math.ceil(total / COLS);
-    var canvasW = PAD * 2 + cols * STEP - GAP;
-    var canvasH = PAD * 2 + rows * STEP - GAP;
+    const cols = Math.min(total, COLS);
+    const rows = Math.ceil(total / COLS);
+    const canvasW = PAD * 2 + cols * STEP - GAP;
+    const canvasH = PAD * 2 + rows * STEP - GAP;
 
-    var canvas = document.createElement('canvas');
+    const canvas = document.createElement('canvas');
     canvas.width = canvasW;
     canvas.height = canvasH;
-    var ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');
 
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvasW, canvasH);
 
-    var idx = 0;
+    let idx = 0;
 
     function drawNext() {
       if (idx >= total) {
@@ -218,11 +228,11 @@
         return;
       }
 
-      var col = idx % COLS;
-      var row = Math.floor(idx / COLS);
-      var x = PAD + col * STEP;
-      var y = PAD + row * STEP;
-      var child = children[idx];
+      const col = idx % COLS;
+      const row = Math.floor(idx / COLS);
+      const x = PAD + col * STEP;
+      const y = PAD + row * STEP;
+      const child = children[idx];
 
       idx++;
 
@@ -231,35 +241,22 @@
         return;
       }
 
-      var letter = child.getAttribute('alt') || '?';
-      var svgContent = SVG_DATA[letter];
-
-      function drawFallback() {
-        ctx.fillStyle = '#f5f0e6';
-        ctx.fillRect(x, y, CELL, CELL);
-        ctx.strokeStyle = '#d5c8b0';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x, y, CELL, CELL);
-        ctx.fillStyle = '#6C464F';
-        ctx.font = 'bold 18px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(letter, x + CELL / 2, y + CELL / 2);
-      }
+      const letter = child.getAttribute('alt') || '?';
+      const svgContent = SVG_DATA[letter];
 
       if (!svgContent) {
-        drawFallback();
+        drawFallback(ctx, x, y, letter);
         drawNext();
         return;
       }
 
-      var img = new Image();
+      const img = new Image();
       img.onload = function () {
         ctx.drawImage(img, x, y, CELL, CELL);
         drawNext();
       };
       img.onerror = function () {
-        drawFallback();
+        drawFallback(ctx, x, y, letter);
         drawNext();
       };
       img.src = 'data:image/svg+xml;base64,' + btoa(svgContent);
@@ -269,7 +266,7 @@
   }
 
   function downloadCanvas(canvas) {
-    var link = document.createElement('a');
+    const link = document.createElement('a');
     link.download = 'cifrado-cajon.png';
     link.href = canvas.toDataURL('image/png');
     document.body.appendChild(link);
@@ -290,18 +287,40 @@
     }
   });
 
-  var cajonLetters = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
-  for (var i = 0; i < cajonLetters.length; i++) {
-    (function (ch) {
-      var btn = document.getElementById('btn' + ch);
-      if (btn) {
+  function buildCajonGrid() {
+    const grid = document.getElementById('cajonGrid');
+    for (const row of GRID_3x9) {
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'cg-row';
+      for (let ci = 0; ci < row.length; ci++) {
+        if (ci === 3 || ci === 6) {
+          const sep = document.createElement('span');
+          sep.className = 'cg-sep';
+          rowDiv.appendChild(sep);
+        }
+        const ch = row[ci];
+        const btn = document.createElement('button');
+        btn.id = 'btn' + ch;
+        btn.className = 'cajon-btn';
+        btn.title = ch;
+        const img = document.createElement('img');
+        img.src = 'img/rejilla/' + ch + '.svg';
+        img.alt = ch;
+        btn.appendChild(img);
+        const label = document.createElement('span');
+        label.className = 'cb-label';
+        label.textContent = ch;
+        btn.appendChild(label);
         btn.addEventListener('click', function () {
           elements.inputText.value += ch;
           elements.inputText.focus();
         });
+        rowDiv.appendChild(btn);
       }
-    })(cajonLetters[i]);
+      grid.appendChild(rowDiv);
+    }
   }
+  buildCajonGrid();
 
   document.getElementById('cajonClear').addEventListener('click', function () {
     elements.inputText.value = '';
