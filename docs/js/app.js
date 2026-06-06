@@ -16,7 +16,9 @@
     copyBtn: document.getElementById('copyBtn'),
     historyList: document.getElementById('historyList'),
     clearHistoryBtn: document.getElementById('clearHistoryBtn'),
-    errorMsg: document.getElementById('errorMsg')
+    errorMsg: document.getElementById('errorMsg'),
+    cajonSection: document.getElementById('cajonSection'),
+    cajonOutput: document.getElementById('cajonOutput')
   };
 
   function getSelectedCipher() {
@@ -25,11 +27,16 @@
 
   function updateCipherInfo() {
     const cipher = getSelectedCipher();
+    const isCajon = cipher.id === 'cajon';
     elements.cipherDescription.textContent = cipher.description;
     elements.referenceContainer.innerHTML = cipher.needsKeyword
       ? cipher.getReference(elements.keywordInput.value)
       : cipher.getReference();
     elements.keywordGroup.style.display = cipher.needsKeyword ? 'block' : 'none';
+    elements.cajonSection.style.display = isCajon ? 'block' : 'none';
+    if (isCajon) {
+      elements.resultContainer.style.display = 'none';
+    }
     elements.errorMsg.textContent = '';
     elements.errorMsg.style.display = 'none';
   }
@@ -50,6 +57,28 @@
   function process(operation) {
     const cipher = getSelectedCipher();
     const text = elements.inputText.value.trim();
+
+    if (cipher.id === 'cajon') {
+      if (operation === 'decrypt') {
+        showError('Usá la grilla de botones para escribir el mensaje manualmente.');
+        return;
+      }
+      if (!text) {
+        showError('Por favor ingresá un mensaje.');
+        return;
+      }
+      elements.errorMsg.style.display = 'none';
+      elements.resultContainer.style.display = 'none';
+      try {
+        const result = cipher.encrypt(text);
+        elements.cajonOutput.innerHTML = result;
+        addHistory(cipher.name, 'Cifrar', text, '[Imágenes]');
+      } catch (e) {
+        showError(e.message || 'Error al procesar el mensaje.');
+      }
+      return;
+    }
+
     if (!text) {
       showError('Por favor ingresá un mensaje.');
       return;
@@ -148,6 +177,106 @@
     renderHistory();
   }
 
+  function generatePng() {
+    const outputEl = elements.cajonOutput;
+    if (!outputEl.innerHTML.trim()) {
+      showError('Primero cifrá un mensaje para generar el PNG.');
+      return;
+    }
+
+    var children = outputEl.children;
+    var CELL = 40;
+    var GAP = 4;
+    var PAD = 24;
+    var COLS = 16;
+    var STEP = CELL + GAP;
+
+    var total = children.length;
+    if (!total) {
+      showError('No hay imágenes para generar.');
+      return;
+    }
+
+    var cols = Math.min(total, COLS);
+    var rows = Math.ceil(total / COLS);
+    var canvasW = PAD * 2 + cols * STEP - GAP;
+    var canvasH = PAD * 2 + rows * STEP - GAP;
+
+    var canvas = document.createElement('canvas');
+    canvas.width = canvasW;
+    canvas.height = canvasH;
+    var ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvasW, canvasH);
+
+    var idx = 0;
+
+    function drawNext() {
+      if (idx >= total) {
+        downloadCanvas(canvas);
+        return;
+      }
+
+      var col = idx % COLS;
+      var row = Math.floor(idx / COLS);
+      var x = PAD + col * STEP;
+      var y = PAD + row * STEP;
+      var child = children[idx];
+
+      idx++;
+
+      if (child.classList.contains('cajon-space')) {
+        drawNext();
+        return;
+      }
+
+      var letter = child.getAttribute('alt') || '?';
+      var svgContent = SVG_DATA[letter];
+
+      function drawFallback() {
+        ctx.fillStyle = '#f5f0e6';
+        ctx.fillRect(x, y, CELL, CELL);
+        ctx.strokeStyle = '#d5c8b0';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, CELL, CELL);
+        ctx.fillStyle = '#6C464F';
+        ctx.font = 'bold 18px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(letter, x + CELL / 2, y + CELL / 2);
+      }
+
+      if (!svgContent) {
+        drawFallback();
+        drawNext();
+        return;
+      }
+
+      var img = new Image();
+      img.onload = function () {
+        ctx.drawImage(img, x, y, CELL, CELL);
+        drawNext();
+      };
+      img.onerror = function () {
+        drawFallback();
+        drawNext();
+      };
+      img.src = 'data:image/svg+xml;base64,' + btoa(svgContent);
+    }
+
+    drawNext();
+  }
+
+  function downloadCanvas(canvas) {
+    var link = document.createElement('a');
+    link.download = 'cifrado-cajon.png';
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   elements.cipherSelect.addEventListener('change', updateCipherInfo);
   elements.keywordInput.addEventListener('input', updateKeywordReference);
   elements.encryptBtn.addEventListener('click', function () { process('encrypt'); });
@@ -160,6 +289,31 @@
       process('encrypt');
     }
   });
+
+  var cajonLetters = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
+  for (var i = 0; i < cajonLetters.length; i++) {
+    (function (ch) {
+      var btn = document.getElementById('btn' + ch);
+      if (btn) {
+        btn.addEventListener('click', function () {
+          elements.inputText.value += ch;
+          elements.inputText.focus();
+        });
+      }
+    })(cajonLetters[i]);
+  }
+
+  document.getElementById('cajonClear').addEventListener('click', function () {
+    elements.inputText.value = '';
+    elements.inputText.focus();
+  });
+
+  document.getElementById('cajonSpace').addEventListener('click', function () {
+    elements.inputText.value += ' ';
+    elements.inputText.focus();
+  });
+
+  document.getElementById('cajonPngBtn').addEventListener('click', generatePng);
 
   updateCipherInfo();
   renderHistory();
