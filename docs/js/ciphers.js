@@ -16,6 +16,21 @@ const GRID_3x9 = [
   ['R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 ];
 
+const BACKWARD_MAP = {
+  'A': 'Z', 'B': 'Y', 'C': 'X', 'D': 'W', 'E': 'V', 'F': 'U', 'G': 'T',
+  'H': 'S', 'I': 'R', 'J': 'Q', 'K': 'P', 'L': 'O', 'M': 'Ñ', 'N': 'N',
+  'Ñ': 'M', 'O': 'L', 'P': 'K', 'Q': 'J', 'R': 'I', 'S': 'H', 'T': 'G',
+  'U': 'F', 'V': 'E', 'W': 'D', 'X': 'C', 'Y': 'B', 'Z': 'A'
+};
+
+const GRID_ENCRYPT_MAP = {};
+for (let r = 0; r < GRID_3x9.length; r++) {
+  for (let c = 0; c < GRID_3x9[r].length; c++) {
+    GRID_ENCRYPT_MAP[GRID_3x9[r][c]] = `${r + 1}${c + 1}`;
+    GRID_ENCRYPT_MAP[GRID_3x9[r][c].toLowerCase()] = `${r + 1}${c + 1}`;
+  }
+}
+
 const Ciphers = {
   morse: {
     id: 'morse',
@@ -140,31 +155,19 @@ const Ciphers = {
     needsKeyword: false,
     description: 'Cada letra se reemplaza por su opuesta en el alfabeto (A↔Z, B↔Y, C↔X...). La Ñ intercambia con la M.',
     encrypt: function (text) {
-      const map = {
-        'A': 'Z', 'B': 'Y', 'C': 'X', 'D': 'W', 'E': 'V', 'F': 'U', 'G': 'T',
-        'H': 'S', 'I': 'R', 'J': 'Q', 'K': 'P', 'L': 'O', 'M': 'Ñ', 'N': 'N',
-        'Ñ': 'M', 'O': 'L', 'P': 'K', 'Q': 'J', 'R': 'I', 'S': 'H', 'T': 'G',
-        'U': 'F', 'V': 'E', 'W': 'D', 'X': 'C', 'Y': 'B', 'Z': 'A'
-      };
-      return text.toUpperCase().split('').map(ch => map[ch] || ch).join('');
+      return text.toUpperCase().split('').map(ch => BACKWARD_MAP[ch] || ch).join('');
     },
     decrypt: function (text) {
       return this.encrypt(text);
     },
     getReference: function () {
       const alphabet = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
-      const map = {
-        'A': 'Z', 'B': 'Y', 'C': 'X', 'D': 'W', 'E': 'V', 'F': 'U', 'G': 'T',
-        'H': 'S', 'I': 'R', 'J': 'Q', 'K': 'P', 'L': 'O', 'M': 'Ñ', 'N': 'N',
-        'Ñ': 'M', 'O': 'L', 'P': 'K', 'Q': 'J', 'R': 'I', 'S': 'H', 'T': 'G',
-        'U': 'F', 'V': 'E', 'W': 'D', 'X': 'C', 'Y': 'B', 'Z': 'A'
-      };
       let html = '<table class="ref-table"><tbody><tr>';
       html += '<td class="ref-label">Normal</td>';
       for (const ch of alphabet) html += `<td class="ref-char">${ch}</td>`;
       html += '</tr><tr>';
       html += '<td class="ref-label">Cifrado</td>';
-      for (const ch of alphabet) html += `<td class="ref-code">${map[ch]}</td>`;
+      for (const ch of alphabet) html += `<td class="ref-code">${BACKWARD_MAP[ch]}</td>`;
       html += '</tr></tbody></table>';
       return html;
     }
@@ -201,16 +204,8 @@ const Ciphers = {
     needsKeyword: false,
     description: 'Cada letra se codifica según su posición en una cuadrícula 3×3. El primer dígito es la fila y el segundo la columna.',
     encrypt: function (text) {
-      const map = {};
-      for (let r = 0; r < GRID_3x9.length; r++) {
-        for (let c = 0; c < GRID_3x9[r].length; c++) {
-          map[GRID_3x9[r][c]] = `${r + 1}${c + 1}`;
-          map[GRID_3x9[r][c].toLowerCase()] = `${r + 1}${c + 1}`;
-        }
-      }
       return text.split('').map(ch => {
-        const upper = ch.toUpperCase();
-        return map[upper] || ch;
+        return GRID_ENCRYPT_MAP[ch.toUpperCase()] || ch;
       }).join(' ');
     },
     decrypt: function (text) {
