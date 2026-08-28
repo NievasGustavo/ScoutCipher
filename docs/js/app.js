@@ -2,6 +2,15 @@
   const HISTORY_KEY = 'scoutcipher_history';
   const MAX_HISTORY = 20;
 
+  const CAJON_CELL = 40;
+  const CAJON_GAP = 4;
+  const CAJON_PAD = 24;
+  const CAJON_COLS = 16;
+  const CAJON_STEP = CAJON_CELL + CAJON_GAP;
+
+  let cajonRows = [];
+  let cajonWarning = '';
+
   const elements = {
     cipherSelect: document.getElementById('cipherSelect'),
     cipherDescription: document.getElementById('cipherDescription'),
@@ -71,8 +80,8 @@
       elements.errorMsg.style.display = 'none';
       elements.resultContainer.style.display = 'none';
       try {
-        const result = cipher.encrypt(text);
-        elements.cajonOutput.innerHTML = result;
+        cipher.encrypt(text);
+        renderCajonPreview(cajonUnitsFromText(text));
         addHistory(cipher.name, 'Cifrar', text, '[Imágenes]');
       } catch (e) {
         showError(e.message || 'Error al procesar el mensaje.');
@@ -173,6 +182,132 @@
     renderHistory();
   }
 
+  function cajonUnitsFromText(text) {
+    const units = [];
+    for (const ch of text.toUpperCase()) {
+      units.push(ch === ' ' ? { space: true } : { letter: ch });
+    }
+    return units;
+  }
+
+  function splitWord(word, cols) {
+    const chunks = [];
+    for (let i = 0; i < word.length; i += cols) {
+      chunks.push(word.slice(i, i + cols));
+    }
+    return chunks;
+  }
+
+  function layoutCajon(units, cols) {
+    const rows = [];
+    const oversizeWords = [];
+    let current = [];
+    let used = 0;
+    let word = [];
+
+    function flush() {
+      if (current.length) {
+        rows.push(current);
+        current = [];
+        used = 0;
+      }
+    }
+
+    function commitWord() {
+      if (!word.length) return;
+      const len = word.length;
+      if (len > cols) {
+        oversizeWords.push(word.join(''));
+        flush();
+        for (const chunk of splitWord(word, cols)) {
+          for (const l of chunk) {
+            current.push(l);
+            used++;
+          }
+          if (used === cols) flush();
+        }
+      } else {
+        const needSep = used > 0 ? 1 : 0;
+        if (used > 0 && needSep + len > cols - used) {
+          flush();
+        }
+        if (used > 0) {
+          current.push(null);
+          used++;
+        }
+        for (const l of word) {
+          current.push(l);
+          used++;
+        }
+        if (used === cols) flush();
+      }
+      word = [];
+    }
+
+    for (const u of units) {
+      if (u.space) {
+        commitWord();
+      } else {
+        word.push(u.letter);
+      }
+    }
+    commitWord();
+    flush();
+
+    let warning = '';
+    if (oversizeWords.length) {
+      warning = 'La palabra ' + oversizeWords.map(w => '"' + w + '"').join(', ') + ' supera el ancho de fila y se parte.';
+    }
+    return { rows, warning };
+  }
+
+  function renderCajonPreview(units) {
+    const layout = layoutCajon(units, CAJON_COLS);
+    cajonRows = layout.rows;
+    cajonWarning = layout.warning;
+
+    elements.cajonOutput.innerHTML = '';
+
+    const grid = document.createElement('div');
+    grid.style.cssText = [
+      'display:grid',
+      'grid-template-columns:repeat(' + CAJON_COLS + ',' + CAJON_CELL + 'px)',
+      'gap:' + CAJON_GAP + 'px',
+      'padding:' + CAJON_PAD + 'px',
+      'background:#ffffff',
+      'width:fit-content',
+      'max-width:100%',
+      'overflow-x:auto',
+      'margin:0 auto',
+      'border-radius:8px'
+    ].join(';') + ';';
+
+    for (const row of layout.rows) {
+      for (let c = 0; c < CAJON_COLS; c++) {
+        const cell = document.createElement('div');
+        cell.style.width = CAJON_CELL + 'px';
+        cell.style.height = CAJON_CELL + 'px';
+        const letter = row[c];
+        if (letter) {
+          const img = document.createElement('img');
+          img.src = 'img/rejilla/' + letter + '.svg';
+          img.alt = letter;
+          img.style.cssText = 'width:100%;height:100%;display:block;object-fit:contain;';
+          cell.appendChild(img);
+        }
+        grid.appendChild(cell);
+      }
+    }
+    elements.cajonOutput.appendChild(grid);
+
+    if (layout.warning) {
+      const note = document.createElement('div');
+      note.textContent = layout.warning;
+      note.style.cssText = 'margin-top:12px;font-size:0.8rem;color:#8a7a7e;';
+      elements.cajonOutput.appendChild(note);
+    }
+  }
+
   function drawFallback(ctx, x, y, letter) {
     const CELL = 40;
     ctx.fillStyle = '#f5f0e6';
@@ -188,29 +323,14 @@
   }
 
   function generatePng() {
-    const outputEl = elements.cajonOutput;
-    if (!outputEl.innerHTML.trim()) {
+    if (!cajonRows.length) {
       showError('Primero cifrá un mensaje para generar el PNG.');
       return;
     }
 
-    const children = outputEl.children;
-    const CELL = 40;
-    const GAP = 4;
-    const PAD = 24;
-    const COLS = 16;
-    const STEP = CELL + GAP;
-
-    const total = children.length;
-    if (!total) {
-      showError('No hay imágenes para generar.');
-      return;
-    }
-
-    const cols = Math.min(total, COLS);
-    const rows = Math.ceil(total / COLS);
-    const canvasW = PAD * 2 + cols * STEP - GAP;
-    const canvasH = PAD * 2 + rows * STEP - GAP;
+    const rows = cajonRows;
+    const canvasW = CAJON_PAD * 2 + CAJON_COLS * CAJON_STEP - CAJON_GAP;
+    const canvasH = CAJON_PAD * 2 + rows.length * CAJON_STEP - CAJON_GAP;
 
     const canvas = document.createElement('canvas');
     canvas.width = canvasW;
@@ -221,27 +341,30 @@
     ctx.fillRect(0, 0, canvasW, canvasH);
 
     let idx = 0;
+    const total = rows.length * CAJON_COLS;
 
     function drawNext() {
       if (idx >= total) {
         downloadCanvas(canvas);
+        if (cajonWarning) {
+          elements.errorMsg.textContent = cajonWarning;
+          elements.errorMsg.style.display = 'block';
+        }
         return;
       }
 
-      const col = idx % COLS;
-      const row = Math.floor(idx / COLS);
-      const x = PAD + col * STEP;
-      const y = PAD + row * STEP;
-      const child = children[idx];
-
+      const row = Math.floor(idx / CAJON_COLS);
+      const col = idx % CAJON_COLS;
+      const letter = rows[row] ? rows[row][col] : null;
       idx++;
 
-      if (child.classList.contains('cajon-space')) {
+      if (!letter) {
         drawNext();
         return;
       }
 
-      const letter = child.getAttribute('alt') || '?';
+      const x = CAJON_PAD + col * CAJON_STEP;
+      const y = CAJON_PAD + row * CAJON_STEP;
       const svgContent = SVG_DATA[letter];
 
       if (!svgContent) {
@@ -252,7 +375,7 @@
 
       const img = new Image();
       img.onload = function () {
-        ctx.drawImage(img, x, y, CELL, CELL);
+        ctx.drawImage(img, x, y, CAJON_CELL, CAJON_CELL);
         drawNext();
       };
       img.onerror = function () {

@@ -278,11 +278,23 @@ const Ciphers = {
     description: 'Cada letra se reemplaza por su imagen en la rejilla de 3 cajones. Usá la grilla interactiva para escribir el mensaje manualmente.',
     encrypt: function (text) {
       const letters = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
+      const unsupported = [];
+      const seen = {};
+      for (const ch of text.toUpperCase()) {
+        if (ch === ' ' || letters.includes(ch)) continue;
+        if (!seen[ch]) {
+          seen[ch] = true;
+          unsupported.push(ch);
+        }
+      }
+      if (unsupported.length) {
+        throw new Error('Caracteres no soportados por la rejilla: ' + unsupported.map(c => '"' + c + '"').join(', '));
+      }
       let html = '';
       for (const ch of text.toUpperCase()) {
         if (ch === ' ') {
           html += '<span class="cajon-space"></span>';
-        } else if (letters.includes(ch)) {
+        } else {
           html += '<img src="img/rejilla/' + ch + '.svg" class="cajon-img" alt="' + ch + '">';
         }
       }
